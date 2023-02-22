@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
 import static org.example.ConstantsErrorMessage.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @DisplayName("Авторизация пользователя")
 public class LoginUserTest {
@@ -30,14 +30,13 @@ public class LoginUserTest {
         userClient.register(user);
         ValidatableResponse loginResponse = userClient.login(UserCredentials.from(user));
         int statusCode = loginResponse.extract().statusCode();
-        boolean isLogin = true;
         Boolean isSuccess = loginResponse.extract().path("success");
 
         String getAccessToken = loginResponse.extract().path("accessToken");
         bearerToken = String.valueOf(getAccessToken);
 
         assertEquals(SC_OK, statusCode);
-        assertEquals(isLogin, isSuccess);
+        assertTrue(isSuccess);
     }
 
     @DisplayName("Проверки авторизации с неверным паролем")
@@ -46,7 +45,6 @@ public class LoginUserTest {
         ValidatableResponse response = userClient.register(user);
         user.setPassword("aaa111");
         ValidatableResponse loginResponse = userClient.login(UserCredentials.from(user));
-        boolean isLogin = false;
 
         int statusCode = loginResponse.extract().statusCode();
         Boolean isSuccess = loginResponse.extract().path("success");
@@ -56,7 +54,7 @@ public class LoginUserTest {
         bearerToken = String.valueOf(getAccessToken);
 
         assertEquals(SC_UNAUTHORIZED, statusCode);
-        assertEquals(isLogin, isSuccess);
+        assertFalse(isSuccess);
         assertEquals(LOGIN_INCORRECT, message);
     }
 
@@ -66,7 +64,6 @@ public class LoginUserTest {
         ValidatableResponse response = userClient.register(user);
         user.setEmail("aaa111!");
         ValidatableResponse loginResponse = userClient.login(UserCredentials.from(user));
-        boolean isLogin = false;
 
         int statusCode = loginResponse.extract().statusCode();
         Boolean isSuccess = loginResponse.extract().path("success");
@@ -76,7 +73,7 @@ public class LoginUserTest {
         bearerToken = String.valueOf(getAccessToken);
 
         assertEquals(SC_UNAUTHORIZED, statusCode);
-        assertEquals(isLogin, isSuccess);
+        assertFalse(isSuccess);
         assertEquals(LOGIN_INCORRECT, message);
     }
 

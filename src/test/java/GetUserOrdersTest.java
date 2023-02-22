@@ -7,8 +7,7 @@ import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
 import static org.example.ConstantsErrorMessage.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @DisplayName("Получение заказов пользователя")
 public class GetUserOrdersTest {
@@ -32,30 +31,33 @@ public class GetUserOrdersTest {
         bearerToken = String.valueOf(getAccessToken);
         orderClient.createOrder(IngredientGenerator.getDefault());
         ValidatableResponse response = orderClient.getOrders(bearerToken);
-        Boolean isGetOrders = true;
 
         int statusCode = response.extract().statusCode();
         Boolean isSuccess = response.extract().path("success");
 
         assertEquals(SC_OK, statusCode);
-        assertEquals(isGetOrders, isSuccess);
+        assertTrue(isSuccess);
         assertNotNull(response.extract().path("orders"));
 
-        userClient.delete(bearerToken);
     }
 
     @DisplayName("Проверка получения списка заказов неавторизованным пользователем")
     @Test
     public void getOrdersWithoutAuth(){
+        bearerToken = "";
         ValidatableResponse response = orderClient.getOrdersWithoutAuth();
-        Boolean isGetOrders = false;
 
         int statusCode = response.extract().statusCode();
         Boolean isSuccess = response.extract().path("success");
         String message = response.extract().path("message");
 
         assertEquals(SC_UNAUTHORIZED, statusCode);
-        assertEquals(isGetOrders, isSuccess);
+        assertFalse(isSuccess);
         assertEquals(REQUEST_WITHOUT_AUTH, message);
+    }
+
+    @After
+    public void cleanUp(){
+        userClient.delete(bearerToken);
     }
 }

@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
 import static org.example.ConstantsErrorMessage.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @DisplayName("Регистрация пользователя")
 public class RegisterUserTest {
@@ -30,13 +30,12 @@ public class RegisterUserTest {
     public void userCanBeRegister(){
         ValidatableResponse response = userClient.register(user);
         int statusCode = response.extract().statusCode();
-        boolean isRegister = true;
 
         String accessToken = response.extract().path("accessToken");
         bearerToken = String.valueOf(accessToken);
 
         assertEquals(SC_OK, statusCode);
-        assertEquals(isRegister, response.extract().path("success"));
+        assertTrue(response.extract().path("success"));
     }
 
     @DisplayName("Проверка регистрации пользователя, который уже зарегистрирован")
@@ -45,7 +44,6 @@ public class RegisterUserTest {
         ValidatableResponse SuccessResponse = userClient.register(user);
         ValidatableResponse response = userClient.register(user);
         int statusCode = response.extract().statusCode();
-        boolean isRegister = false;
         String errorMessage = response.extract().path("message");
 
         String accessToken = SuccessResponse.extract().path("accessToken");
@@ -53,7 +51,7 @@ public class RegisterUserTest {
 
         assertEquals(SC_FORBIDDEN, statusCode);
         assertEquals(REGISTER_USER_EXISTS, errorMessage);
-        assertEquals(isRegister, response.extract().path("success"));
+        assertFalse(response.extract().path("success"));
         }
 
     @DisplayName("Проверка регистрации пользователя без email")
@@ -62,7 +60,6 @@ public class RegisterUserTest {
         user.setEmail("");
         ValidatableResponse response = userClient.register(user);
         int statusCode = response.extract().statusCode();
-        boolean isRegister = false;
         String message = response.extract().path("message");
 
         String accessToken = response.extract().path("accessToken");
@@ -70,7 +67,7 @@ public class RegisterUserTest {
 
         assertEquals(SC_FORBIDDEN, statusCode);
         assertEquals(REGISTER_NO_REQUIRED_FIELDS, message);
-        assertEquals(isRegister, response.extract().path("success"));
+        assertFalse(response.extract().path("success"));
         }
 
     @DisplayName("Проверка регистрации пользователя без email")
@@ -79,7 +76,6 @@ public class RegisterUserTest {
         user.setPassword("");
         ValidatableResponse response = userClient.register(user);
         int statusCode = response.extract().statusCode();
-        boolean isRegister = false;
         String message = response.extract().path("message");
 
         String accessToken = response.extract().path("accessToken");
@@ -87,7 +83,7 @@ public class RegisterUserTest {
 
         assertEquals(SC_FORBIDDEN, statusCode);
         assertEquals(REGISTER_NO_REQUIRED_FIELDS, message);
-        assertEquals(isRegister, response.extract().path("success"));
+        assertFalse(response.extract().path("success"));
         }
 
     @After

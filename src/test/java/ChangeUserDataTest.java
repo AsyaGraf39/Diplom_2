@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
 import static org.example.ConstantsErrorMessage.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @DisplayName("Изменение данных пользователя")
 public class ChangeUserDataTest {
@@ -34,7 +34,6 @@ public class ChangeUserDataTest {
         user.setEmail(newEmail);
         user.setPassword("111!!!");
         user.setName("КОТЭ");
-        boolean isChanged  = true;
         ValidatableResponse response = userClient.changeData(user,bearerToken);
         int statusCode = response.extract().statusCode();
         Boolean success = response.extract().path("success");
@@ -45,7 +44,7 @@ public class ChangeUserDataTest {
         int loginWithNewPwd = loginResponse.extract().statusCode();
 
         assertEquals(SC_OK, statusCode);
-        assertEquals(isChanged, success);
+        assertTrue(success);
         assertEquals(newEmail.toLowerCase(), email);
         assertEquals(user.getName(), name);
         assertEquals(SC_OK, loginWithNewPwd);
@@ -57,14 +56,13 @@ public class ChangeUserDataTest {
         user.setEmail("Sobanya@inbox.ru");
         user.setPassword("111!!!111");
         user.setName("Трололо");
-        boolean isChanged  = false;
         ValidatableResponse response = userClient.changeDataWithoutAuth(user);
         int statusCode = response.extract().statusCode();
         Boolean success = response.extract().path("success");
         String message = response.extract().path("message");
 
         assertEquals(SC_UNAUTHORIZED, statusCode);
-        assertEquals(isChanged, success);
+        assertFalse(success);
         assertEquals(REQUEST_WITHOUT_AUTH, message);
     }
 

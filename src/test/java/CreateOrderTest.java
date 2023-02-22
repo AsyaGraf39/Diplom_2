@@ -7,8 +7,7 @@ import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
 import static org.example.ConstantsErrorMessage.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @DisplayName("Создание заказа")
 public class CreateOrderTest {
@@ -34,7 +33,6 @@ public class CreateOrderTest {
         ingredients = IngredientGenerator.getDefault();
         ValidatableResponse response = orderClient.createOrder(ingredients, bearerToken);
         String expectedName = "Space био-марсианский флюоресцентный бургер";
-        boolean isCreated = true;
 
         int statusCode = response.extract().statusCode();
         String actualName = response.extract().path("name");
@@ -43,8 +41,8 @@ public class CreateOrderTest {
 
         assertEquals(SC_OK, statusCode);
         assertEquals(expectedName, actualName);
-        assertEquals(isCreated, isSuccess);
-        assertNotNull(numberOrder);
+        assertTrue(isSuccess);
+        assert(numberOrder > 0);
     }
 
     @DisplayName("Проверка создания заказа без авторизации")
@@ -52,13 +50,12 @@ public class CreateOrderTest {
     public void createOrderWithoutAuth(){
         ingredients = IngredientGenerator.getDefault();
         ValidatableResponse response = orderClient.createOrder(ingredients);
-        boolean isCreated = false;
 
         int statusCode = response.extract().statusCode();
         Boolean isSuccess = response.extract().path("success");
 
         assertEquals(SC_UNAUTHORIZED, statusCode);
-        assertEquals(isCreated, isSuccess);
+        assertFalse(isSuccess);
     }
 
     @Test
@@ -66,14 +63,13 @@ public class CreateOrderTest {
     public void createOrderWithoutIngredients(){
         ingredients = IngredientGenerator.getNull();
         ValidatableResponse response = orderClient.createOrder(ingredients, bearerToken);
-        boolean isCreated = false;
 
         int statusCode = response.extract().statusCode();
         Boolean isSuccess = response.extract().path("success");
         String message = response.extract().path("message");
 
         assertEquals(SC_BAD_REQUEST, statusCode);
-        assertEquals(isCreated, isSuccess);
+        assertFalse(isSuccess);
         assertEquals(ORDER_WITHOUT_INGREDIENTS, message);
     }
 
